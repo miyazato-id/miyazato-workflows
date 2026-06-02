@@ -1,4 +1,4 @@
-name: Deploy Development (dv)
+name: Deploy Development (dv-account1-je-network)
 
 on:
   push:
@@ -16,12 +16,11 @@ on:
 permissions:
   id-token: write
   contents: read
-  # PRにコメントを書き込むための権限
   pull-requests: write
 
 jobs:
   deploy-account1-network:
-    name: Deploy Account1 Network
+    name: Deploy dv-account1-je-network
     runs-on: ubuntu-latest
 
     steps:
@@ -40,10 +39,8 @@ jobs:
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
-          # 1. スタックの現在のステータスを厳密に取得する（存在しない場合は NOT_FOUND にする）
-          STATUS=$(aws cloudformation describe-stacks --stack-name vesta-dv-account1-network --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          STATUS=$(aws cloudformation describe-stacks --stack-name dv-account1-je-network --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
           
-          # REVIEW_IN_PROGRESS（ゾンビ状態）や DELETE_COMPLETE（削除済み）の場合は CREATE とする
           if [ "$STATUS" == "NOT_FOUND" ] || [ "$STATUS" == "REVIEW_IN_PROGRESS" ] || [ "$STATUS" == "DELETE_COMPLETE" ]; then
             echo "Stack status is $STATUS. Creating a CREATE change set."
             CHANGE_SET_TYPE="CREATE"
@@ -52,17 +49,15 @@ jobs:
             CHANGE_SET_TYPE="UPDATE"
           fi
 
-          # 2. 判定した CHANGE_SET_TYPE を使って ChangeSet を作成する
           aws cloudformation create-change-set \
-            --stack-name vesta-dv-account1-network \
+            --stack-name dv-account1-je-network \
             --template-body file://cloudformation/dv/account1-je/network.yml \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
             --change-set-type $CHANGE_SET_TYPE \
             --capabilities CAPABILITY_NAMED_IAM
           
-          # 3. ChangeSetの作成が完了するまで待機する
           aws cloudformation wait change-set-create-complete \
-            --stack-name vesta-dv-account1-network \
+            --stack-name dv-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
 
       # ----------------------------------------------------------------
@@ -73,29 +68,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 変更の有無を確認
           CHANGES=$(aws cloudformation describe-change-set \
-            --stack-name vesta-dv-account1-network \
+            --stack-name dv-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
             --query 'Changes' --output text)
             
           if [ "$CHANGES" == "None" ] || [ -z "$CHANGES" ]; then
             echo "No changes to deploy."
             cat << EOF > pr_comment.md
-          ### CloudFormation ChangeSet (Account1 Network)
+          ### CloudFormation ChangeSet (dv-account1-je-network)
           AWSリソースに変更はありません。
           EOF
           else
-            # 変更がある場合はテーブル形式で取得
-            # 【推奨版】Action, LogicalID, ResourceType, Replacement の4項目のみを取得する
             SUMMARY=$(aws cloudformation describe-change-set \
-              --stack-name vesta-dv-account1-network \
+              --stack-name dv-account1-je-network \
               --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
               --query 'Changes[*].ResourceChange.{Action:Action, LogicalID:LogicalResourceId, ResourceType:ResourceType, Replacement:Replacement}' \
               --output table)
             
             cat << EOF > pr_comment.md
-          ### CloudFormation 変更サマリー (Account1 Network)
+          ### CloudFormation ChangeSet (dv-account1-je-network)
           \`\`\`text
           $SUMMARY
           \`\`\`
@@ -107,17 +99,17 @@ jobs:
           
           # マージ後のデプロイが安全に行えるよう、作成したChangeSetを削除しておく
           aws cloudformation delete-change-set \
-            --stack-name vesta-dv-account1-network \
+            --stack-name dv-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset
 
       # ----------------------------------------------------------------
       # 【Merge用】実際にAWSへ適用（Deploy）する
       # ----------------------------------------------------------------
-      - name: Deploy to AWS (Merge to main)
+      - name: Deploy to AWS
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           aws cloudformation deploy \
             --template-file cloudformation/dv/account1-je/network.yml \
-            --stack-name vesta-dv-account1-network \
+            --stack-name dv-account1-je-network \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset

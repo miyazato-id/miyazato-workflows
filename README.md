@@ -1,5 +1,6 @@
 # cicd-test-infra
 
+```
 vesta-aws-infra/
 ├── .github/
 │   ├── pull_request_template.md  # Pull Request テンプレート
@@ -60,3 +61,4 @@ vesta-aws-infra/
 │           ├── log.yml           # CloudTrail, CloudWatch, Config, Data Firehose, Athena, Health, SNS
 │           └── cost.yml          # Budgets, Cost Explorer
 └── README.md                     # デプロイ手順
+```
