@@ -40,13 +40,16 @@ jobs:
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
-          # 1. スタックが既に存在するかどうかをチェックする
-          if aws cloudformation describe-stacks --stack-name vesta-dv-account1-network > /dev/null 2>&1; then
-            echo "Stack exists. Creating an UPDATE change set."
-            CHANGE_SET_TYPE="UPDATE"
-          else
-            echo "Stack does not exist. Creating a CREATE change set."
+          # 1. スタックの現在のステータスを厳密に取得する（存在しない場合は NOT_FOUND にする）
+          STATUS=$(aws cloudformation describe-stacks --stack-name vesta-dv-account1-network --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          
+          # REVIEW_IN_PROGRESS（ゾンビ状態）や DELETE_COMPLETE（削除済み）の場合は CREATE とする
+          if [ "$STATUS" == "NOT_FOUND" ] || [ "$STATUS" == "REVIEW_IN_PROGRESS" ] || [ "$STATUS" == "DELETE_COMPLETE" ]; then
+            echo "Stack status is $STATUS. Creating a CREATE change set."
             CHANGE_SET_TYPE="CREATE"
+          else
+            echo "Stack status is $STATUS. Creating an UPDATE change set."
+            CHANGE_SET_TYPE="UPDATE"
           fi
 
           # 2. 判定した CHANGE_SET_TYPE を使って ChangeSet を作成する
