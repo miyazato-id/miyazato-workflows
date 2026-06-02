@@ -82,7 +82,7 @@ jobs:
           if [ "$CHANGES" == "None" ] || [ -z "$CHANGES" ]; then
             echo "No changes to deploy."
             cat << EOF > pr_comment.md
-          ### CloudFormation 変更サマリー (Account1 Network)
+          ### CloudFormation ChangeSet (Account1 Network)
           AWSリソースに変更はありません。
           EOF
           else
