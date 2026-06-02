@@ -10,7 +10,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: vesta-dv-account1-je-vpc
+          Value: dv-account1-je-vpc
         - Key: Environment
           Value: dv
 
@@ -23,7 +23,7 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: vesta-dv-account1-je-subnet-private-1a
+          Value: dv-account1-je-subnet-private-1a
         - Key: Environment
           Value: dv
 
