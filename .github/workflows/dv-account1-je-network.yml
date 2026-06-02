@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'cloudformation/dv/**'
+      - 'cloudformation/dv/account1-je/network.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'cloudformation/dv/**'
+      - 'cloudformation/dv/account1-je/network.yml'
   workflow_dispatch:
 
 permissions:
