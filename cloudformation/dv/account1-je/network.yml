@@ -3,16 +3,15 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'VPC and Subnet setup for Account1 - dv environment'
 
 Resources:
-  # VPCは残すので、有効な状態を維持します
   Vpc:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.20.0.0/16
+      CidrBlock: 10.0.0.0/16
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: new-vesta-dv-account1-vpc
+          Value: vesta-dv-account1-vpc
         - Key: Environment
           Value: dv
 
