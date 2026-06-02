@@ -40,14 +40,24 @@ jobs:
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
+          # 1. スタックが既に存在するかどうかをチェックする
+          if aws cloudformation describe-stacks --stack-name vesta-dv-account1-network > /dev/null 2>&1; then
+            echo "Stack exists. Creating an UPDATE change set."
+            CHANGE_SET_TYPE="UPDATE"
+          else
+            echo "Stack does not exist. Creating a CREATE change set."
+            CHANGE_SET_TYPE="CREATE"
+          fi
+
+          # 2. 判定した CHANGE_SET_TYPE を使って ChangeSet を作成する
           aws cloudformation create-change-set \
             --stack-name vesta-dv-account1-network \
             --template-body file://cloudformation/dv/account1-je/network.yml \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
-            --change-set-type UPDATE \
+            --change-set-type $CHANGE_SET_TYPE \
             --capabilities CAPABILITY_NAMED_IAM
           
-          # ChangeSetの作成が完了するまで待機する
+          # 3. ChangeSetの作成が完了するまで待機する
           aws cloudformation wait change-set-create-complete \
             --stack-name vesta-dv-account1-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
