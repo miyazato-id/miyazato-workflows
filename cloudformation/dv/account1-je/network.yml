@@ -11,7 +11,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: new-vesta-dv-account1-vpc
+          Value: vesta-dv-account1-vpc
         - Key: Environment
           Value: dv
 
