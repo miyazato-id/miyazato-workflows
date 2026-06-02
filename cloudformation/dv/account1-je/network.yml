@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'VPC and Subnet setup for Account1 - dv environment'
+Description: 'dv-account1-je-network'
 
 Resources:
   Vpc:

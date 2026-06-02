@@ -1,4 +1,4 @@
-name: Deploy Development (dv-account1-je-network)
+name: dv-account1-je-network
 
 on:
   push:
