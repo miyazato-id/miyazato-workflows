@@ -1,0 +1,78 @@
+# cloudformation/dv/account1-je/network.yml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VPC and Subnet setup for Account1 - dv environment'
+
+Resources:
+  # VPCは残すので、有効な状態を維持します
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.20.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: new-vesta-dv-account1-vpc
+        - Key: Environment
+          Value: dv
+
+  # -------------------------------------------------------------------
+  # 2. Subnets (サブネット) の作成
+  # ※以下の通りコメントアウトすることで、次のデプロイ時にAWSから削除されます。
+  # -------------------------------------------------------------------
+  
+  # PublicSubnet1a:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: !Ref Vpc
+  #     AvailabilityZone: !Sub "${AWS::Region}a"
+  #     CidrBlock: 10.10.0.0/24
+  #     MapPublicIpOnLaunch: true
+  #     Tags:
+  #       - Key: Name
+  #         Value: vesta-dv-account1-public-1a
+
+  # PublicSubnet1c:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: !Ref Vpc
+  #     AvailabilityZone: !Sub "${AWS::Region}c"
+  #     CidrBlock: 10.10.1.0/24
+  #     MapPublicIpOnLaunch: true
+  #     Tags:
+  #       - Key: Name
+  #         Value: vesta-dv-account1-public-1c
+
+  # PrivateSubnet1a:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: !Ref Vpc
+  #     AvailabilityZone: !Sub "${AWS::Region}a"
+  #     CidrBlock: 10.10.10.0/24
+  #     MapPublicIpOnLaunch: false
+  #     Tags:
+  #       - Key: Name
+  #         Value: vesta-dv-account1-private-1a
+
+  # PrivateSubnet1c:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     VpcId: !Ref Vpc
+  #     AvailabilityZone: !Sub "${AWS::Region}c"
+  #     CidrBlock: 10.10.11.0/24
+  #     MapPublicIpOnLaunch: false
+  #     Tags:
+  #       - Key: Name
+  #         Value: vesta-dv-account1-private-1c
+
+Outputs:
+  VpcId:
+    Value: !Ref Vpc
+    Export:
+      Name: !Sub "${AWS::StackName}-VpcId"
+  
+  # サブネット本体を消したため、関連するOutputもコメントアウトしておきます
+  # PublicSubnet1aId:
+  #   Value: !Ref PublicSubnet1a
+  #   Export:
+  #     Name: !Sub "${AWS::StackName}-PublicSubnet1aId"
