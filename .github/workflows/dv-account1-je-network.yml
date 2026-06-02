@@ -87,7 +87,7 @@ jobs:
               --output table)
             
             cat << EOF > pr_comment.md
-          ### CloudFormation 変更サマリー (dv-account1-je-network)
+          ### CloudFormation ChangeSet (dv-account1-je-network)
           \`\`\`text
           $SUMMARY
           \`\`\`
