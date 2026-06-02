@@ -96,7 +96,6 @@ jobs:
             
             cat << EOF > pr_comment.md
           ### CloudFormation 変更サマリー (Account1 Network)
-          以下のリソースに変更が加えられます。レビューをお願いします！
           \`\`\`text
           $SUMMARY
           \`\`\`
