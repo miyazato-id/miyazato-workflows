@@ -1,4 +1,3 @@
-# .github/workflows/deploy-dv.yml
 name: Deploy Development (dv)
 
 on:
@@ -41,14 +40,27 @@ jobs:
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
+          # 1. スタックの現在のステータスを厳密に取得する（存在しない場合は NOT_FOUND にする）
+          STATUS=$(aws cloudformation describe-stacks --stack-name vesta-dv-account1-network --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          
+          # REVIEW_IN_PROGRESS（ゾンビ状態）や DELETE_COMPLETE（削除済み）の場合は CREATE とする
+          if [ "$STATUS" == "NOT_FOUND" ] || [ "$STATUS" == "REVIEW_IN_PROGRESS" ] || [ "$STATUS" == "DELETE_COMPLETE" ]; then
+            echo "Stack status is $STATUS. Creating a CREATE change set."
+            CHANGE_SET_TYPE="CREATE"
+          else
+            echo "Stack status is $STATUS. Creating an UPDATE change set."
+            CHANGE_SET_TYPE="UPDATE"
+          fi
+
+          # 2. 判定した CHANGE_SET_TYPE を使って ChangeSet を作成する
           aws cloudformation create-change-set \
             --stack-name vesta-dv-account1-network \
             --template-body file://cloudformation/dv/account1-je/network.yml \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
-            --change-set-type UPDATE \
+            --change-set-type $CHANGE_SET_TYPE \
             --capabilities CAPABILITY_NAMED_IAM
           
-          # ChangeSetの作成が完了するまで待機する
+          # 3. ChangeSetの作成が完了するまで待機する
           aws cloudformation wait change-set-create-complete \
             --stack-name vesta-dv-account1-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
