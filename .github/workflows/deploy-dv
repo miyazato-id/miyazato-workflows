@@ -1,0 +1,112 @@
+# .github/workflows/deploy-dv.yml
+name: Deploy Development (dv)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cloudformation/dv/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'cloudformation/dv/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  # PRにコメントを書き込むための権限
+  pull-requests: write
+
+jobs:
+  deploy-account1-network:
+    name: Deploy Account1 Network
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::473427586283:role/cicd-test-role
+          aws-region: ap-northeast-1
+
+      # ----------------------------------------------------------------
+      # 【PR用】変更セット（ChangeSet）の作成
+      # ----------------------------------------------------------------
+      - name: Create ChangeSet (PR Only)
+        if: github.event_name == 'pull_request'
+        run: |
+          aws cloudformation create-change-set \
+            --stack-name vesta-dv-account1-network \
+            --template-body file://cloudformation/dv/account1-je/network.yml \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
+            --change-set-type UPDATE \
+            --capabilities CAPABILITY_NAMED_IAM
+          
+          # ChangeSetの作成が完了するまで待機する
+          aws cloudformation wait change-set-create-complete \
+            --stack-name vesta-dv-account1-network \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
+
+      # ----------------------------------------------------------------
+      # 【PR用】作成した変更セットの詳細を取得し、PRにコメントする
+      # ----------------------------------------------------------------
+      - name: Post ChangeSet Summary to PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 変更の有無を確認
+          CHANGES=$(aws cloudformation describe-change-set \
+            --stack-name vesta-dv-account1-network \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
+            --query 'Changes' --output text)
+            
+          if [ "$CHANGES" == "None" ] || [ -z "$CHANGES" ]; then
+            echo "No changes to deploy."
+            cat << EOF > pr_comment.md
+          ### CloudFormation 変更サマリー (Account1 Network)
+          AWSリソースに変更はありません。
+          EOF
+          else
+            # 変更がある場合はテーブル形式で取得
+            # 【推奨版】Action, LogicalID, ResourceType, Replacement の4項目のみを取得する
+            SUMMARY=$(aws cloudformation describe-change-set \
+              --stack-name vesta-dv-account1-network \
+              --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
+              --query 'Changes[*].ResourceChange.{Action:Action, LogicalID:LogicalResourceId, ResourceType:ResourceType, Replacement:Replacement}' \
+              --output table)
+            
+            cat << EOF > pr_comment.md
+          ### CloudFormation 変更サマリー (Account1 Network)
+          以下のリソースに変更が加えられます。レビューをお願いします！
+          \`\`\`text
+          $SUMMARY
+          \`\`\`
+          EOF
+          fi
+          
+          # GitHub CLIを使ってPRにコメントを投稿
+          gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
+          
+          # マージ後のデプロイが安全に行えるよう、作成したChangeSetを削除しておく
+          aws cloudformation delete-change-set \
+            --stack-name vesta-dv-account1-network \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset
+
+      # ----------------------------------------------------------------
+      # 【Merge用】実際にAWSへ適用（Deploy）する
+      # ----------------------------------------------------------------
+      - name: Deploy to AWS (Merge to main)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          aws cloudformation deploy \
+            --template-file cloudformation/dv/account1-je/network.yml \
+            --stack-name vesta-dv-account1-network \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
