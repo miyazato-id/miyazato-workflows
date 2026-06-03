@@ -11,6 +11,8 @@ Resources:
       Tags:
         - Key: Name
           Value: dv-account1-je-vpc
+        - Key: Environment
+          Value: dv
 
   PrivateSubnet1a:
     Type: AWS::EC2::Subnet
@@ -22,6 +24,8 @@ Resources:
       Tags:
         - Key: Name
           Value: dv-account1-je-subnet-private-1a
+        - Key: Environment
+          Value: dv
 
 Outputs:
   VpcId:
