@@ -19,5 +19,5 @@
 - [ ] CI/CDパイプライン設定 (`.github/workflows/`)
 - [ ] その他 (`README.md`,`serverconfig.md`)
 
-## 承認(Approve)希望日時
+## 承認希望日時
 - YYYY/MM/DD xx:xx まで
