@@ -33,9 +33,6 @@ jobs:
           role-to-assume: arn:aws:iam::473427586283:role/cicd-test-role
           aws-region: ap-northeast-1
 
-      # ----------------------------------------------------------------
-      # 【PR用】変更セット（ChangeSet）の作成
-      # ----------------------------------------------------------------
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
@@ -60,9 +57,6 @@ jobs:
             --stack-name dv-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
 
-      # ----------------------------------------------------------------
-      # 【PR用】作成した変更セットの詳細を取得し、PRにコメントする
-      # ----------------------------------------------------------------
       - name: Post ChangeSet Summary to PR
         if: github.event_name == 'pull_request'
         env:
@@ -94,17 +88,12 @@ jobs:
           EOF
           fi
           
-          # GitHub CLIを使ってPRにコメントを投稿
           gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
           
-          # マージ後のデプロイが安全に行えるよう、作成したChangeSetを削除しておく
           aws cloudformation delete-change-set \
             --stack-name dv-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset
 
-      # ----------------------------------------------------------------
-      # 【Merge用】実際にAWSへ適用（Deploy）する
-      # ----------------------------------------------------------------
       - name: Deploy to AWS
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
