@@ -5,6 +5,7 @@ Resources:
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: dv-account1-je-ecs-task-execution-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
