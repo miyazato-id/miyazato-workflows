@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'dv-account1-log-stack'
+
+Resources:
+  EcsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/dv-account1-nginx
+      RetentionInDays: 7
+
+Outputs:
+  EcsLogGroupName:
+    Value: !Ref EcsLogGroup
+    Export:
+      Name: "dv-EcsLogGroupName"
