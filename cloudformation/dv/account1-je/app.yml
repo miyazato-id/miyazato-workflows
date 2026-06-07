@@ -7,34 +7,34 @@ Resources:
     Properties:
       ClusterName: dv-account1-cluster
 
-  EcsTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: dv-account1-nginx-task
-      RequiresCompatibilities: [ FARGATE ]
-      NetworkMode: awsvpc
-      Cpu: '256'
-      Memory: '512'
-      ExecutionRoleArn: !ImportValue "dv-EcsTaskExecutionRoleArn"
-      ContainerDefinitions:
-        - Name: nginx-container
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dv-nginx:latest"
-          PortMappings:
-            - ContainerPort: 80
-              Protocol: tcp
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !ImportValue "dv-EcsLogGroupName"
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: ecs
+  # EcsTaskDefinition:
+  #   Type: AWS::ECS::TaskDefinition
+  #   Properties:
+  #     Family: dv-account1-nginx-task
+  #     RequiresCompatibilities: [ FARGATE ]
+  #     NetworkMode: awsvpc
+  #     Cpu: '256'
+  #     Memory: '512'
+  #     ExecutionRoleArn: !ImportValue "dv-EcsTaskExecutionRoleArn"
+  #     ContainerDefinitions:
+  #       - Name: nginx-container
+  #         Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dv-nginx:latest"
+  #         PortMappings:
+  #           - ContainerPort: 80
+  #             Protocol: tcp
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-group: !ImportValue "dv-EcsLogGroupName"
+  #             awslogs-region: !Ref AWS::Region
+  #             awslogs-stream-prefix: ecs
 
   EcsService:
     Type: AWS::ECS::Service
     Properties:
       ServiceName: dv-account1-nginx-service
       Cluster: !Ref EcsCluster
-      TaskDefinition: !Ref EcsTaskDefinition
+      # TaskDefinition: !Ref EcsTaskDefinition
       LaunchType: FARGATE
       DesiredCount: 1
       NetworkConfiguration:
