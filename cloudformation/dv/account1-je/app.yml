@@ -34,7 +34,7 @@ Resources:
     Properties:
       ServiceName: dv-account1-nginx-service
       Cluster: !Ref EcsCluster
-      TaskDefinition: !Ref EcsTaskDefinition
+      # TaskDefinition: !Ref EcsTaskDefinition
       LaunchType: FARGATE
       DesiredCount: 1
       NetworkConfiguration:
