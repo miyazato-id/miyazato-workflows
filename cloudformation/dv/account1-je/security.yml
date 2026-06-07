@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'dv-account1-security-stack'
 
 Resources:
+  EcsServiceLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: ecs.amazonaws.com
+      Description: "Service Linked Role for ECS"
+
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
