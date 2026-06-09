@@ -41,7 +41,7 @@ Resources:
       Cluster: !Ref EcsCluster
       TaskDefinition: !Ref EcsTaskDefinition
       LaunchType: FARGATE
-      DesiredCount: 1
+      DesiredCount: 0
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
