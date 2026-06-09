@@ -23,7 +23,7 @@ Resources:
       ExecutionRoleArn: !ImportValue "dv-EcsTaskExecutionRoleArn"
       ContainerDefinitions:
         - Name: nginx-container
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dv-nginx:latest"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/dv-nginx:70fdb73d48755f7cb9a8e06f2b36d33a9c370e8f"
           PortMappings:
             - ContainerPort: 80
               Protocol: tcp
