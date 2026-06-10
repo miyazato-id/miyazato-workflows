@@ -6,8 +6,11 @@
 - [ ] VESTA
 
 【対象環境】
-- [ ] 開発環境 (`cloudformation/dv/`)
-- [ ] 検証環境 (`cloudformation/st/`)
+- [ ] kt1環境 (`cloudformation/kt1/`)
+- [ ] kt2環境 (`cloudformation/kt2/`)
+- [ ] kt3環境 (`cloudformation/kt3/`)
+- [ ] st1環境 (`cloudformation/st1/`)
+- [ ] st2環境 (`cloudformation/st2/`)
 - [ ] 本番環境 (`cloudformation/pr/`)
 
 【対象アカウント】
