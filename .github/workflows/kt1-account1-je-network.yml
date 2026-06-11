@@ -1,16 +1,16 @@
-name: dv-account1-je-network
+name: kt1-account1-je-network
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'cloudformation/dv/account1-je/network.yml'
+      - 'cloudformation/kt1/account1-je/network.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'cloudformation/dv/account1-je/network.yml'
+      - 'cloudformation/kt1/account1-je/network.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   deploy-account1-network:
-    name: Deploy dv-account1-je-network
+    name: Deploy kt1-account1-je-network
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +36,7 @@ jobs:
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
-          STATUS=$(aws cloudformation describe-stacks --stack-name dv-account1-je-network --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          STATUS=$(aws cloudformation describe-stacks --stack-name kt1-account1-je-network --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
           
           if [ "$STATUS" == "NOT_FOUND" ] || [ "$STATUS" == "REVIEW_IN_PROGRESS" ] || [ "$STATUS" == "DELETE_COMPLETE" ]; then
             echo "Stack status is $STATUS. Creating a CREATE change set."
@@ -47,14 +47,14 @@ jobs:
           fi
 
           aws cloudformation create-change-set \
-            --stack-name dv-account1-je-network \
-            --template-body file://cloudformation/dv/account1-je/network.yml \
+            --stack-name kt1-account1-je-network \
+            --template-body file://cloudformation/kt1/account1-je/network.yml \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
             --change-set-type $CHANGE_SET_TYPE \
             --capabilities CAPABILITY_NAMED_IAM
           
           aws cloudformation wait change-set-create-complete \
-            --stack-name dv-account1-je-network \
+            --stack-name kt1-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
 
       - name: Post ChangeSet Summary to PR
@@ -63,25 +63,25 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           CHANGES=$(aws cloudformation describe-change-set \
-            --stack-name dv-account1-je-network \
+            --stack-name kt1-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
             --query 'Changes' --output text)
             
           if [ "$CHANGES" == "None" ] || [ -z "$CHANGES" ]; then
             echo "No changes to deploy."
             cat << EOF > pr_comment.md
-          ### CloudFormation ChangeSet (dv-account1-je-network)
+          ### CloudFormation ChangeSet (kt1-account1-je-network)
           AWSリソースに変更はありません。
           EOF
           else
             SUMMARY=$(aws cloudformation describe-change-set \
-              --stack-name dv-account1-je-network \
+              --stack-name kt1-account1-je-network \
               --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
               --query 'Changes[*].ResourceChange.{Action:Action, LogicalID:LogicalResourceId, ResourceType:ResourceType, Replacement:Replacement}' \
               --output table)
             
             cat << EOF > pr_comment.md
-          ### CloudFormation ChangeSet (dv-account1-je-network)
+          ### CloudFormation ChangeSet (kt1-account1-je-network)
           \`\`\`text
           $SUMMARY
           \`\`\`
@@ -91,14 +91,14 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
           
           aws cloudformation delete-change-set \
-            --stack-name dv-account1-je-network \
+            --stack-name kt1-account1-je-network \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset
 
       - name: Deploy to AWS
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           aws cloudformation deploy \
-            --template-file cloudformation/dv/account1-je/network.yml \
-            --stack-name dv-account1-je-network \
+            --template-file cloudformation/kt1/account1-je/network.yml \
+            --stack-name kt1-account1-je-network \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset

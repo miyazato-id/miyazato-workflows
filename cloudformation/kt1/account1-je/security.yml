@@ -1,12 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'dv-account1-security-stack'
 
 Resources:
 
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: dv-account1-je-ecs-task-execution-role
+      RoleName: kt1-account1-je-ecs-task-execution-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -21,4 +20,4 @@ Outputs:
   EcsTaskExecutionRoleArn:
     Value: !GetAtt EcsTaskExecutionRole.Arn
     Export:
-      Name: "dv-EcsTaskExecutionRoleArn"
+      Name: "kt1-EcsTaskExecutionRoleArn"
