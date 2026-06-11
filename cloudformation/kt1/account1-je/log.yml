@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Resources:
-  EcsLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: /ecs/kt1-account1-nginx
-      RetentionInDays: 7
+# Resources:
+#   EcsLogGroup:
+#     Type: AWS::Logs::LogGroup
+#     Properties:
+#       LogGroupName: /ecs/kt1-account1-nginx
+#       RetentionInDays: 7
 
-Outputs:
-  EcsLogGroupName:
-    Value: !Ref EcsLogGroup
-    Export:
-      Name: "kt1-EcsLogGroupName"
+# Outputs:
+#   EcsLogGroupName:
+#     Value: !Ref EcsLogGroup
+#     Export:
+#       Name: "kt1-EcsLogGroupName"

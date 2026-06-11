@@ -1,96 +1,96 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Resources:
-  Vpc:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
+# Resources:
+#   Vpc:
+#     Type: AWS::EC2::VPC
+#     Properties:
+#       CidrBlock: 10.0.0.0/16
+#       EnableDnsSupport: true
+#       EnableDnsHostnames: true
 
-  PrivateRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref Vpc
+#   PrivateRouteTable:
+#     Type: AWS::EC2::RouteTable
+#     Properties:
+#       VpcId: !Ref Vpc
 
-  PrivateSubnet1a:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref Vpc
-      CidrBlock: 10.0.1.0/24
-      AvailabilityZone: ap-northeast-1a
+#   PrivateSubnet1a:
+#     Type: AWS::EC2::Subnet
+#     Properties:
+#       VpcId: !Ref Vpc
+#       CidrBlock: 10.0.1.0/24
+#       AvailabilityZone: ap-northeast-1a
 
-  PrivateSubnet1aRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PrivateSubnet1a
-      RouteTableId: !Ref PrivateRouteTable
+#   PrivateSubnet1aRouteTableAssociation:
+#     Type: AWS::EC2::SubnetRouteTableAssociation
+#     Properties:
+#       SubnetId: !Ref PrivateSubnet1a
+#       RouteTableId: !Ref PrivateRouteTable
 
-  EcsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security Group for ECS Task
-      VpcId: !Ref Vpc
+#   EcsSecurityGroup:
+#     Type: AWS::EC2::SecurityGroup
+#     Properties:
+#       GroupDescription: Security Group for ECS Task
+#       VpcId: !Ref Vpc
 
-  VpcEndpointSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security Group for VPC Endpoints
-      VpcId: !Ref Vpc
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          SourceSecurityGroupId: !Ref EcsSecurityGroup
+#   VpcEndpointSecurityGroup:
+#     Type: AWS::EC2::SecurityGroup
+#     Properties:
+#       GroupDescription: Security Group for VPC Endpoints
+#       VpcId: !Ref Vpc
+#       SecurityGroupIngress:
+#         - IpProtocol: tcp
+#           FromPort: 443
+#           ToPort: 443
+#           SourceSecurityGroupId: !Ref EcsSecurityGroup
 
-  EcrDkrEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.dkr"
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds: [ !Ref PrivateSubnet1a ]
-      SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
+#   EcrDkrEndpoint:
+#     Type: AWS::EC2::VPCEndpoint
+#     Properties:
+#       VpcId: !Ref Vpc
+#       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.dkr"
+#       VpcEndpointType: Interface
+#       PrivateDnsEnabled: true
+#       SubnetIds: [ !Ref PrivateSubnet1a ]
+#       SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
 
-  EcrApiEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.api"
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds: [ !Ref PrivateSubnet1a ]
-      SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
+#   EcrApiEndpoint:
+#     Type: AWS::EC2::VPCEndpoint
+#     Properties:
+#       VpcId: !Ref Vpc
+#       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.api"
+#       VpcEndpointType: Interface
+#       PrivateDnsEnabled: true
+#       SubnetIds: [ !Ref PrivateSubnet1a ]
+#       SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
 
-  LogsEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.logs"
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds: [ !Ref PrivateSubnet1a ]
-      SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
+#   LogsEndpoint:
+#     Type: AWS::EC2::VPCEndpoint
+#     Properties:
+#       VpcId: !Ref Vpc
+#       ServiceName: !Sub "com.amazonaws.${AWS::Region}.logs"
+#       VpcEndpointType: Interface
+#       PrivateDnsEnabled: true
+#       SubnetIds: [ !Ref PrivateSubnet1a ]
+#       SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
 
-  S3Endpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
-      VpcEndpointType: Gateway
-      RouteTableIds: [ !Ref PrivateRouteTable ]
+#   S3Endpoint:
+#     Type: AWS::EC2::VPCEndpoint
+#     Properties:
+#       VpcId: !Ref Vpc
+#       ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
+#       VpcEndpointType: Gateway
+#       RouteTableIds: [ !Ref PrivateRouteTable ]
 
-Outputs:
-  VpcId:
-    Value: !Ref Vpc
-    Export:
-      Name: "kt1-VpcId"
-  PrivateSubnet1aId:
-    Value: !Ref PrivateSubnet1a
-    Export:
-      Name: "kt1-PrivateSubnet1aId"
-  EcsSecurityGroupId:
-    Value: !Ref EcsSecurityGroup
-    Export:
-      Name: "kt1-EcsSecurityGroupId"
+# Outputs:
+#   VpcId:
+#     Value: !Ref Vpc
+#     Export:
+#       Name: "kt1-VpcId"
+#   PrivateSubnet1aId:
+#     Value: !Ref PrivateSubnet1a
+#     Export:
+#       Name: "kt1-PrivateSubnet1aId"
+#   EcsSecurityGroupId:
+#     Value: !Ref EcsSecurityGroup
+#     Export:
+#       Name: "kt1-EcsSecurityGroupId"
