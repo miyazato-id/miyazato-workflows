@@ -85,12 +85,12 @@ Outputs:
   VpcId:
     Value: !Ref Vpc
     Export:
-      Name: "kt1-VpcId"
+      Name: "kt-VpcId"
   PrivateSubnet1aId:
     Value: !Ref PrivateSubnet1a
     Export:
-      Name: "kt1-PrivateSubnet1aId"
+      Name: "kt-PrivateSubnet1aId"
   EcsSecurityGroupId:
     Value: !Ref EcsSecurityGroup
     Export:
-      Name: "kt1-EcsSecurityGroupId"
+      Name: "kt-EcsSecurityGroupId"
