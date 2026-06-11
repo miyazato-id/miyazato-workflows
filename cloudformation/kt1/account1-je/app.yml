@@ -23,7 +23,7 @@ Resources:
       ExecutionRoleArn: !ImportValue "kt1-EcsTaskExecutionRoleArn"
       ContainerDefinitions:
         - Name: nginx-container
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/kt1-nginx:v6"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/kt1-nginx:v8"
           PortMappings:
             - ContainerPort: 80
               Protocol: tcp
