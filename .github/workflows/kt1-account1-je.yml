@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'cloudformation/kt1/account1-je/**' # フォルダ内の何かが変更されたら起動
+      - 'cloudformation/kt1/account1-je/**'
   pull_request:
     branches: [ main ]
     paths:
@@ -17,9 +17,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  # ==========================================
-  # 1. ネットワーク層 (Network)
-  # ==========================================
+  # Network
   deploy-account1-network:
     name: Deploy Network
     runs-on: ubuntu-latest
@@ -85,9 +83,7 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
 
-  # ==========================================
-  # 2. セキュリティ層 (Security)
-  # ==========================================
+  # Security
   deploy-account1-security:
     name: Deploy Security
     needs: deploy-account1-network # ★Networkが終わるまで待つ
@@ -154,9 +150,7 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
 
-  # ==========================================
-  # 3. ログ層 (Log)
-  # ==========================================
+  # Log
   deploy-account1-log:
     name: Deploy Log
     needs: deploy-account1-security # ★Securityが終わるまで待つ
@@ -223,9 +217,7 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
 
-  # ==========================================
-  # 4. アプリ層 (App)
-  # ==========================================
+  # App
   deploy-account1-app:
     name: Deploy App
     needs: deploy-account1-log # ★Logが終わるまで待つ
