@@ -34,7 +34,6 @@ Resources:
     Properties:
       SubnetId: !Ref PrivateSubnet1a
       RouteTableId: !Ref PrivateRouteTable
-    # ※Association（関連付け）リソースには名前やタグを設定するプロパティはありません
 
   EcsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
