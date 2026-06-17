@@ -33,7 +33,7 @@ Resources:
               awslogs-group: !ImportValue "kt1-EcsLogGroupName"
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
-
+# ECS
   EcsService:
     Type: AWS::ECS::Service
     Properties:
