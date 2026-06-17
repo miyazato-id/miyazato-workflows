@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  EcsmonitorGroup:
+    Type: AWS::monitors::monitorGroup
+    Properties:
+      monitorGroupName: /ecs/kt1-account1-nginx
+      RetentionInDays: 7
+
+Outputs:
+  EcsmonitorGroupName:
+    Value: !Ref EcsmonitorGroup
+    Export:
+      Name: "kt1-EcsmonitorGroupName"
