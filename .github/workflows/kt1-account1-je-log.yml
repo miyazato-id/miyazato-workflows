@@ -1,16 +1,16 @@
-name: kt1-account1-je-monitor
+name: kt1-account1-je-log
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'cloudformation/kt1/account1-je/monitor.yml'
+      - 'cloudformation/kt1/account1-je/log.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'cloudformation/kt1/account1-je/monitor.yml'
+      - 'cloudformation/kt1/account1-je/log.yml'
   workflow_dispatch:
 
 permissions:
@@ -19,8 +19,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  deploy-account1-monitor:
-    name: Deploy kt1-account1-je-monitor
+  deploy-account1-log:
+    name: Deploy kt1-account1-je-log
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +36,7 @@ jobs:
       - name: Create ChangeSet (PR Only)
         if: github.event_name == 'pull_request'
         run: |
-          STATUS=$(aws cloudformation describe-stacks --stack-name kt1-account1-je-monitor --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          STATUS=$(aws cloudformation describe-stacks --stack-name kt1-account1-je-log --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
           
           if [ "$STATUS" == "NOT_FOUND" ] || [ "$STATUS" == "REVIEW_IN_PROGRESS" ] || [ "$STATUS" == "DELETE_COMPLETE" ]; then
             echo "Stack status is $STATUS. Creating a CREATE change set."
@@ -47,14 +47,14 @@ jobs:
           fi
 
           aws cloudformation create-change-set \
-            --stack-name kt1-account1-je-monitor \
-            --template-body file://cloudformation/kt1/account1-je/monitor.yml \
+            --stack-name kt1-account1-je-log \
+            --template-body file://cloudformation/kt1/account1-je/log.yml \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
             --change-set-type $CHANGE_SET_TYPE \
             --capabilities CAPABILITY_NAMED_IAM
           
           aws cloudformation wait change-set-create-complete \
-            --stack-name kt1-account1-je-monitor \
+            --stack-name kt1-account1-je-log \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
 
       - name: Post ChangeSet Summary to PR
@@ -63,25 +63,25 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           CHANGES=$(aws cloudformation describe-change-set \
-            --stack-name kt1-account1-je-monitor \
+            --stack-name kt1-account1-je-log \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
             --query 'Changes' --output text)
             
           if [ "$CHANGES" == "None" ] || [ -z "$CHANGES" ]; then
             echo "No changes to deploy."
             cat << EOF > pr_comment.md
-          ### CloudFormation ChangeSet (kt1-account1-je-monitor)
+          ### CloudFormation ChangeSet (kt1-account1-je-log)
           AWSリソースに変更はありません。
           EOF
           else
             SUMMARY=$(aws cloudformation describe-change-set \
-              --stack-name kt1-account1-je-monitor \
+              --stack-name kt1-account1-je-log \
               --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
-              --query 'Changes[*].ResourceChange.{Action:Action, monitoricalID:monitoricalResourceId, ResourceType:ResourceType, Replacement:Replacement}' \
+              --query 'Changes[*].ResourceChange.{Action:Action, logicalID:logicalResourceId, ResourceType:ResourceType, Replacement:Replacement}' \
               --output table)
             
             cat << EOF > pr_comment.md
-          ### CloudFormation ChangeSet (kt1-account1-je-monitor)
+          ### CloudFormation ChangeSet (kt1-account1-je-log)
           \`\`\`text
           $SUMMARY
           \`\`\`
@@ -91,14 +91,14 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
           
           aws cloudformation delete-change-set \
-            --stack-name kt1-account1-je-monitor \
+            --stack-name kt1-account1-je-log \
             --change-set-name pr-${{ github.event.pull_request.number }}-changeset
 
       - name: Deploy to AWS
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           aws cloudformation deploy \
-            --template-file cloudformation/kt1/account1-je/monitor.yml \
-            --stack-name kt1-account1-je-monitor \
+            --template-file cloudformation/kt1/account1-je/log.yml \
+            --stack-name kt1-account1-je-log \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
