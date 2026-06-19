@@ -54,9 +54,6 @@ Outputs:
     Export:
       Name: "kt1-EcsLogGroupName"
 
-  # ==========================================
-  # 追加：作成されたS3バケット名の出力（他テンプレートからの参照用）
-  # ==========================================
   GitHubActionsLogBucketName:
     Description: "The name of the S3 bucket for GitHub Actions logs"
     Value: !Ref GitHubActionsLogBucket
