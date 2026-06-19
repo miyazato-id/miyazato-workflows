@@ -55,7 +55,6 @@ Outputs:
       Name: "kt1-EcsLogGroupName"
 
   GitHubActionsLogBucketName:
-    Description: "The name of the S3 bucket for GitHub Actions logs"
     Value: !Ref GitHubActionsLogBucket
     Export:
       Name: "kt1-GitHubActionsLogBucketName"
