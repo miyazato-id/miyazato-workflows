@@ -51,10 +51,6 @@ Resources:
           Value: kt1
 
 Outputs:
-  EcsmonitorGroupName:
-    Value: !Ref EcsLogGroup
-    Export:
-      Name: "kt1-account3-EcsLogGroupName"
 
   GitHubActionsLogBucketName:
     Description: "The name of the S3 bucket for GitHub Actions logs in Osaka"
