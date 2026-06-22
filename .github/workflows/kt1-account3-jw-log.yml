@@ -104,9 +104,9 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset 2>&1 | tee ./logs/deploy_output.log
 
-      # - name: Upload logs to S3
-      #   if: always()
-      #   run: |
-      #     mkdir -p ./logs
+      - name: Upload logs to S3
+        if: always()
+        run: |
+          mkdir -p ./logs
           
-      #     aws s3 cp ./logs/ s3://github-actions-logs-602849570081-ap-northeast-3/${{ github.workflow }}/${{ github.run_id }}/ --recursive
+          aws s3 cp ./logs/ s3://github-actions-logs-602849570081-ap-northeast-3/${{ github.workflow }}/${{ github.run_id }}/ --recursive
