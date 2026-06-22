@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  # ==========================================
-  # S3: GitHub Actions 実行ログ保管用バケット
-  # ==========================================
   GitHubActionsLogBucket:
     Type: AWS::S3::Bucket
     Properties:
