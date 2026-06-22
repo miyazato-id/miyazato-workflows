@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  GitHubActionsLogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      # AWSアカウントIDとデプロイリージョン（ap-northeast-3）が動的に埋め込まれ、
+      # 世界中で一意かつ用途のわかりやすいバケット名が自動生成されます
+      BucketName: !Sub 'github-actions-logs-${AWS::AccountId}-${AWS::Region}'
+      
+      # オブジェクトロックの有効化（必須条件であるバージョニングも自動的に有効化されます）
+      ObjectLockEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+        
+      # オブジェクトロックルール：ガバナンスモードで30日間保護
+      ObjectLockConfiguration:
+        ObjectLockEnabled: Enabled
+        Rule:
+          DefaultRetention:
+            Mode: GOVERNANCE
+            Days: 30
+            
+      # セキュリティ：パブリックアクセスをすべて遮断
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+        
+      # セキュリティ：サーバー側の暗号化（AES256）
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+              
+      # ライフサイクル管理：オブジェクトロック期間満了後の古いログを90日で自動完全削除
+      # （バージョニングが有効なため、古いリビジョンもあわせて削除します）
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldLogsAndVersionsRule
+            Status: Enabled
+            ExpirationInDays: 90
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 90
+              
+      Tags:
+        - Key: Name
+          Value: GitHubActions-Execution-Logs-Osaka
+        - Key: Environment
+          Value: kt1
+
+Outputs:
+
+  GitHubActionsLogBucketName:
+    Description: "The name of the S3 bucket for GitHub Actions logs in Osaka"
+    Value: !Ref GitHubActionsLogBucket
+    Export:
+      Name: "kt1-account3-GitHubActionsLogBucketName"
