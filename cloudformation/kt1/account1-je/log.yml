@@ -5,7 +5,7 @@ Resources:
   GitHubActionsLogBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'github-actions-logs-${AWS::AccountId}-${AWS::Region}'
+      BucketName: !Sub 'kt1-github-actions-logs-${AWS::AccountId}-${AWS::Region}'
       
       ObjectLockEnabled: true
       VersioningConfiguration:
