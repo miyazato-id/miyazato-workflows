@@ -34,7 +34,6 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
 
-# ECS
   EcsService:
     Type: AWS::ECS::Service
     Properties:
