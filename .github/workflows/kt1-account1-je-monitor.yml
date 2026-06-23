@@ -1,0 +1,112 @@
+name: kt1-account1-je-monitor
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cloudformation/kt1/account1-je/monitor.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'cloudformation/kt1/account1-je/monitor.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy-account1-monitor:
+    name: Deploy kt1-account1-je-monitor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::473427586283:role/cicd-test-role
+          aws-region: ap-northeast-1
+
+      - name: Create ChangeSet (PR Only)
+        if: github.event_name == 'pull_request'
+        run: |
+          STATUS=$(aws cloudformation describe-stacks --stack-name kt1-account1-je-monitor --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          
+          if [ "$STATUS" == "NOT_FOUND" ] || [ "$STATUS" == "REVIEW_IN_PROGRESS" ] || [ "$STATUS" == "DELETE_COMPLETE" ]; then
+            echo "Stack status is $STATUS. Creating a CREATE change set."
+            CHANGE_SET_TYPE="CREATE"
+          else
+            echo "Stack status is $STATUS. Creating an UPDATE change set."
+            CHANGE_SET_TYPE="UPDATE"
+          fi
+
+          aws cloudformation create-change-set \
+            --stack-name kt1-account1-je-monitor \
+            --template-body file://cloudformation/kt1/account1-je/monitor.yml \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
+            --change-set-type $CHANGE_SET_TYPE \
+            --capabilities CAPABILITY_NAMED_IAM
+          
+          aws cloudformation wait change-set-create-complete \
+            --stack-name kt1-account1-je-monitor \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset || true
+
+      - name: Post ChangeSet Summary to PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CHANGES=$(aws cloudformation describe-change-set \
+            --stack-name kt1-account1-je-monitor \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
+            --query 'Changes' --output text)
+            
+          if [ "$CHANGES" == "None" ] || [ -z "$CHANGES" ]; then
+            echo "No changes to deploy."
+            cat << EOF > pr_comment.md
+          ### CloudFormation ChangeSet (kt1-account1-je-monitor)
+          AWSリソースに変更はありません。
+          EOF
+          else
+            SUMMARY=$(aws cloudformation describe-change-set \
+              --stack-name kt1-account1-je-monitor \
+              --change-set-name pr-${{ github.event.pull_request.number }}-changeset \
+              --query 'Changes[*].ResourceChange.{Action:Action, logicalID:logicalResourceId, ResourceType:ResourceType, Replacement:Replacement}' \
+              --output table)
+            
+            cat << EOF > pr_comment.md
+          ### CloudFormation ChangeSet (kt1-account1-je-monitor)
+          \`\`\`text
+          $SUMMARY
+          \`\`\`
+          EOF
+          fi
+          
+          gh pr comment ${{ github.event.pull_request.number }} --body-file pr_comment.md
+          
+          aws cloudformation delete-change-set \
+            --stack-name kt1-account1-je-monitor \
+            --change-set-name pr-${{ github.event.pull_request.number }}-changeset
+
+      - name: Deploy to AWS
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p ./logs
+          aws cloudformation deploy \
+            --template-file cloudformation/kt1/account1-je/monitor.yml \
+            --stack-name kt1-account1-je-monitor \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset 2>&1 | tee ./logs/deploy_output.log
+
+      - name: Upload logs to S3
+        if: always()
+        run: |
+          mkdir -p ./logs
+          
+          aws s3 cp ./logs/ s3://github-actions-logs-473427586283-ap-northeast-1/${{ github.workflow }}/${{ github.run_id }}/ --recursive
