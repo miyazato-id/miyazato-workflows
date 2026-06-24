@@ -4,11 +4,9 @@ Resources:
   GitHubActionsLogBucket:
     Type: AWS::S3::Bucket
     Properties:
-      # AWSアカウントIDとデプロイリージョン（ap-northeast-3）が動的に埋め込まれ、
-      # 世界中で一意かつ用途のわかりやすいバケット名が自動生成されます
-      BucketName: !Sub 'github-actions-logs-${AWS::AccountId}-${AWS::Region}'
+      BucketName: !Sub 'kt1-github-actions-logs-${AWS::AccountId}-${AWS::Region}'
       
-      # オブジェクトロックの有効化（必須条件であるバージョニングも自動的に有効化されます）
+      # オブジェクトロックの有効化
       ObjectLockEnabled: true
       VersioningConfiguration:
         Status: Enabled
