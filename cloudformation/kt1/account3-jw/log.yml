@@ -33,7 +33,6 @@ Resources:
               SSEAlgorithm: AES256
               
       # ライフサイクル管理：オブジェクトロック期間満了後の古いログを90日で自動完全削除
-      # （バージョニングが有効なため、古いリビジョンもあわせて削除します）
       LifecycleConfiguration:
         Rules:
           - Id: DeleteOldLogsAndVersionsRule
