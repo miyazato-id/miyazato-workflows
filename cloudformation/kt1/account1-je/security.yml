@@ -5,7 +5,7 @@ Resources:
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: kt1-account1-je-ecs-task-execution-role
+      RoleName: miyazato-kt1-account1-je-ecs-task-execution-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -20,4 +20,4 @@ Outputs:
   EcsTaskExecutionRoleArn:
     Value: !GetAtt EcsTaskExecutionRole.Arn
     Export:
-      Name: "kt1-EcsTaskExecutionRoleArn"
+      Name: "miyazato-kt1-EcsTaskExecutionRoleArn"
