@@ -5,17 +5,17 @@ Resources:
   AppEcrRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: kt1-nginx
+      RepositoryName: miyazato-kt1-nginx
 
   EcsCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: kt1-account1-cluster
+      ClusterName: miyazato-kt1-account1-cluster
 
   EcsTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: kt1-account1-nginx-task
+      Family: miyazato-kt1-account1-nginx-task
       RequiresCompatibilities: [ FARGATE ]
       NetworkMode: awsvpc
       Cpu: '256'
@@ -23,7 +23,7 @@ Resources:
       ExecutionRoleArn: !ImportValue "kt1-EcsTaskExecutionRoleArn"
       ContainerDefinitions:
         - Name: nginx-container
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/kt1-nginx:v8"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/miyazato-kt1-nginx:v8"
           PortMappings:
             - ContainerPort: 80
               Protocol: tcp
@@ -37,7 +37,7 @@ Resources:
   EcsService:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: kt1-account1-nginx-service
+      ServiceName: miyazato-kt1-account1-nginx-service
       Cluster: !Ref EcsCluster
       TaskDefinition: !Ref EcsTaskDefinition
       LaunchType: FARGATE
