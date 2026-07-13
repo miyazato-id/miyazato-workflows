@@ -44,20 +44,9 @@ Resources:
         - Key: Environment
           Value: kt1
 
-  EcsLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: /ecs/miyazato-kt1-account1-nginx
-      RetentionInDays: 7
-
 Outputs:
 
   GitHubActionsLogBucketName:
     Value: !Ref GitHubActionsLogBucket
     Export:
       Name: "miyazato-kt1-GitHubActionsLogBucketName"
-
-  EcsLogGroupName:
-    Value: !Ref EcsLogGroup
-    Export:
-      Name: "miyazato-kt1-EcsLogGroupName"
