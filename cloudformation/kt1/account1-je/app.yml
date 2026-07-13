@@ -30,7 +30,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !ImportValue "miyazato-kt1-EcsLogGroupName"
+              awslogs-group: /ecs/miyazato-kt1-account1-nginx-v2
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
 
