@@ -6,29 +6,30 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'kt1-github-actions-logs-${AWS::AccountId}-${AWS::Region}'
-      
+
       ObjectLockEnabled: true
+
       VersioningConfiguration:
         Status: Enabled
-        
+
       ObjectLockConfiguration:
         ObjectLockEnabled: Enabled
         Rule:
           DefaultRetention:
             Mode: GOVERNANCE
             Days: 30
-            
+
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-        
+
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-              
+
       LifecycleConfiguration:
         Rules:
           - Id: DeleteOldLogsAndVersionsRule
@@ -36,12 +37,18 @@ Resources:
             ExpirationInDays: 90
             NoncurrentVersionExpiration:
               NoncurrentDays: 90
-              
+
       Tags:
         - Key: Name
           Value: GitHubActions-Execution-Logs
         - Key: Environment
           Value: kt1
+
+  EcsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/miyazato-kt1-account1-nginx
+      RetentionInDays: 7
 
 Outputs:
 
@@ -49,3 +56,8 @@ Outputs:
     Value: !Ref GitHubActionsLogBucket
     Export:
       Name: "kt1-GitHubActionsLogBucketName"
+
+  EcsLogGroupName:
+    Value: !Ref EcsLogGroup
+    Export:
+      Name: "miyazato-kt1-EcsLogGroupName"
