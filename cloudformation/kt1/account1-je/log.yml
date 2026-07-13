@@ -5,7 +5,7 @@ Resources:
   GitHubActionsLogBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'kt1-github-actions-logs-${AWS::AccountId}-${AWS::Region}'
+      BucketName: !Sub 'miyazato-kt1-github-actions-logs-${AWS::AccountId}-${AWS::Region}'
 
       ObjectLockEnabled: true
 
@@ -55,7 +55,7 @@ Outputs:
   GitHubActionsLogBucketName:
     Value: !Ref GitHubActionsLogBucket
     Export:
-      Name: "kt1-GitHubActionsLogBucketName"
+      Name: "miyazato-kt1-GitHubActionsLogBucketName"
 
   EcsLogGroupName:
     Value: !Ref EcsLogGroup
