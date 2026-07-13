@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
 
+  EcsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/miyazato-kt1-account1-nginx-v2
+      RetentionInDays: 7
+
   EcsCluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -9,6 +15,9 @@ Resources:
 
   EcsTaskDefinition:
     Type: AWS::ECS::TaskDefinition
+    DependsOn:
+      - EcsLogGroup
+
     Properties:
       Family: miyazato-kt1-account1-nginx-task
 
@@ -73,3 +82,6 @@ Outputs:
 
   ServiceName:
     Value: !Ref EcsService
+
+  LogGroupName:
+    Value: !Ref EcsLogGroup
