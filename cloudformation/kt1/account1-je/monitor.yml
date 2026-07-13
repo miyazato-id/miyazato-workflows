@@ -4,7 +4,7 @@ Resources:
   EcsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: /ecs/miyazato-kt1-account1-nginx
+      LogGroupName: /ecs/miyazato-kt1-account1-nginx-v2
       RetentionInDays: 7
 
 Outputs:
