@@ -109,4 +109,4 @@ jobs:
         run: |
           mkdir -p ./logs
           
-          aws s3 cp ./logs/ s3://kt1-github-actions-logs-473427586283-ap-northeast-1/${{ github.workflow }}/${{ github.run_id }}/ --recursive
+          aws s3 cp ./logs/ s3://miyazato-kt1-github-actions-logs-473427586283-ap-northeast-1/${{ github.workflow }}/${{ github.run_id }}/ --recursive
