@@ -81,7 +81,7 @@ jobs:
               --output table)
             
             cat << EOF > pr_comment.md
-          ### CloudFormation ChangeSet (miyazato-kt1-account1-je-log)
+          ## CloudFormation ChangeSet (miyazato-kt1-account1-je-log)
           \`\`\`text
           $SUMMARY
           \`\`\`
