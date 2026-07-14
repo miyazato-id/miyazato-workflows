@@ -1,125 +1,785 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Description: Subnets / RouteTables stack
+Parameters:
+
+  Vpc1Id:
+    Type: AWS::EC2::VPC::Id
+    Description: Existing VPC1 ID
+
+  Vpc2Id:
+    Type: AWS::EC2::VPC::Id
+    Description: Existing VPC2 ID
+
 
 Resources:
-  Vpc:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: miyazato-kt1-vpc
 
-  PrivateRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref Vpc
-      Tags:
-        - Key: Name
-          Value: miyazato-kt1-private-rt
+##############################################
+# ===== VPC1 1NLB =====
+##############################################
 
-  PrivateSubnet1a:
+  Subnet1a:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref Vpc
+      VpcId: !Ref Vpc1Id
       CidrBlock: 10.0.1.0/24
-      AvailabilityZone: ap-northeast-1a
+      AvailabilityZone: !Sub ${AWS::Region}a
       Tags:
         - Key: Name
-          Value: miyazato-kt1-private-subnet-1a
+          Value: subnet-jeA0S9V101pr1a-001
 
-  PrivateSubnet1aRouteTableAssociation:
+  RT1a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr1a-001-rtb001
+
+  Assoc1a:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PrivateSubnet1a
-      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref Subnet1a
+      RouteTableId: !Ref RT1a
 
-  EcsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  Subnet1c:
+    Type: AWS::EC2::Subnet
     Properties:
-      GroupName: miyazato-kt1-ecs-sg
-      GroupDescription: Security Group for ECS Task
-      VpcId: !Ref Vpc
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.11.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
       Tags:
         - Key: Name
-          Value: miyazato-kt1-ecs-sg
+          Value: subnet-jeA0S9V101pr1c-001
 
-  VpcEndpointSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  RT1c:
+    Type: AWS::EC2::RouteTable
     Properties:
-      GroupName: miyazato-kt1-vpce-sg
-      GroupDescription: Security Group for VPC Endpoints
-      VpcId: !Ref Vpc
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          SourceSecurityGroupId: !Ref EcsSecurityGroup
+      VpcId: !Ref Vpc1Id
       Tags:
         - Key: Name
-          Value: miyazato-kt1-vpce-sg
+          Value: subnet-jeA0S9V101pr1c-001-rtb001
 
-  EcrDkrEndpoint:
-    Type: AWS::EC2::VPCEndpoint
+  Assoc1c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.dkr"
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds: [ !Ref PrivateSubnet1a ]
-      SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
+      SubnetId: !Ref Subnet1c
+      RouteTableId: !Ref RT1c
+
+  Subnet1d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.21.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
       Tags:
         - Key: Name
-          Value: miyazato-kt1-vpce-ecr-dkr
+          Value: subnet-jeA0S9V101pr1d-001
 
-  EcrApiEndpoint:
-    Type: AWS::EC2::VPCEndpoint
+  RT1d:
+    Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.api"
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds: [ !Ref PrivateSubnet1a ]
-      SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
+      VpcId: !Ref Vpc1Id
       Tags:
         - Key: Name
-          Value: miyazato-kt1-vpce-ecr-api
+          Value: subnet-jeA0S9V101pr1d-001-rtb001
 
-  LogsEndpoint:
-    Type: AWS::EC2::VPCEndpoint
+  Assoc1d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.logs"
-      VpcEndpointType: Interface
-      PrivateDnsEnabled: true
-      SubnetIds: [ !Ref PrivateSubnet1a ]
-      SecurityGroupIds: [ !Ref VpcEndpointSecurityGroup ]
+      SubnetId: !Ref Subnet1d
+      RouteTableId: !Ref RT1d
+
+##############################################
+# ===== VPC1 2ECS =====
+##############################################
+
+  Subnet2a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Sub ${AWS::Region}a
       Tags:
         - Key: Name
-          Value: miyazato-kt1-vpce-logs
+          Value: subnet-jeA0S9V101pr2a-001
 
-  S3Endpoint:
-    Type: AWS::EC2::VPCEndpoint
+  RT2a:
+    Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref Vpc
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
-      VpcEndpointType: Gateway
-      RouteTableIds: [ !Ref PrivateRouteTable ]
+      VpcId: !Ref Vpc1Id
       Tags:
         - Key: Name
-          Value: miyazato-kt1-vpce-s3
+          Value: subnet-jeA0S9V101pr2a-001-rtb001
 
+  Assoc2a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet2a
+      RouteTableId: !Ref RT2a
+
+  Subnet2c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.12.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr2c-001
+
+  RT2c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr2c-001-rtb001
+
+  Assoc2c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet2c
+      RouteTableId: !Ref RT2c
+
+  Subnet2d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.22.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr2d-001
+
+  RT2d:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr2d-001-rtb001
+
+  Assoc2d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet2d
+      RouteTableId: !Ref RT2d
+
+##############################################
+# ===== VPC1 3VPCE =====
+##############################################
+
+  Subnet3a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr3a-001
+
+  RT3a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr3a-001-rtb001
+
+  Assoc3a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet3a
+      RouteTableId: !Ref RT3a
+
+  Subnet3c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.13.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr3c-001
+
+  RT3c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr3c-001-rtb001
+
+  Assoc3c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet3c
+      RouteTableId: !Ref RT3c
+
+  Subnet3d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.23.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr3d-001
+
+  RT3d:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr3d-001-rtb001
+
+  Assoc3d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet3d
+      RouteTableId: !Ref RT3d
+
+##############################################
+# ===== VPC1 4TGW =====
+##############################################
+
+  Subnet4a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr4a-001
+
+  RT4a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr4a-001-rtb001
+
+  Assoc4a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet4a
+      RouteTableId: !Ref RT4a
+
+  Subnet4c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.14.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr4c-001
+
+  RT4c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr4c-001-rtb001
+
+  Assoc4c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet4c
+      RouteTableId: !Ref RT4c
+
+  Subnet4d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc1Id
+      CidrBlock: 10.0.24.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr4d-001
+
+  RT4d:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc1Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr4d-001-rtb001
+
+  Assoc4d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet4d
+      RouteTableId: !Ref RT4d
+
+##############################################
+# ===== VPC2 5EC2: VyOS / Linux =====
+##############################################
+  Subnet5a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.1.0/24
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr5a-002
+
+  RT5a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr5a-002-rtb001
+
+  Assoc5a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet5a
+      RouteTableId: !Ref RT5a
+
+  Subnet5c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.11.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr5c-002
+
+  RT5c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr5c-002-rtb001
+
+  Assoc5c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet5c
+      RouteTableId: !Ref RT5c
+
+  Subnet5d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.21.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr5d-002
+
+  RT5d:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr5d-002-rtb001
+
+  Assoc5d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet5d
+      RouteTableId: !Ref RT5d
+
+##############################################
+# ===== VPC2 6VPCE =====
+##############################################
+
+  Subnet6a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.2.0/24
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr6a-002
+
+  RT6a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr6a-002-rtb001
+
+  Assoc6a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet6a
+      RouteTableId: !Ref RT6a
+
+  Subnet6c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.12.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr6c-002
+
+  RT6c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr6c-002-rtb001
+
+  Assoc6c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet6c
+      RouteTableId: !Ref RT6c
+
+  Subnet6d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.22.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr6d-002
+
+  RT6d:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr6d-002-rtb001
+
+  Assoc6d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet6d
+      RouteTableId: !Ref RT6d
+
+##############################################
+# ===== VPC2 7TGW =====
+##############################################
+
+  Subnet7a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.3.0/24
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr7a-002
+
+  RT7a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr7a-002-rtb001
+
+  Assoc7a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet7a
+      RouteTableId: !Ref RT7a
+
+  Subnet7c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.13.0/24
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr7c-002
+
+  RT7c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr7c-002-rtb001
+
+  Assoc7c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet7c
+      RouteTableId: !Ref RT7c
+
+  Subnet7d:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc2Id
+      CidrBlock: 10.1.23.0/24
+      AvailabilityZone: !Sub ${AWS::Region}d
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr7d-002
+
+  RT7d:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc2Id
+      Tags:
+        - Key: Name
+          Value: subnet-jeA0S9V101pr7d-002-rtb001
+
+  Assoc7d:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet7d
+      RouteTableId: !Ref RT7d
+ 
 Outputs:
-  VpcId:
-    Value: !Ref Vpc
+
+  ##############################################
+  # VPC1 - 1NLB
+  ##############################################
+
+  Subnet1aId:
+    Value: !Ref Subnet1a
     Export:
-      Name: "miyazato-kt1-VpcId"
-  PrivateSubnet1aId:
-    Value: !Ref PrivateSubnet1a
+      Name: subnet1a-id
+
+  Subnet1cId:
+    Value: !Ref Subnet1c
     Export:
-      Name: "miyazato-kt1-PrivateSubnet1aId"
-  EcsSecurityGroupId:
-    Value: !Ref EcsSecurityGroup
+      Name: subnet1c-id
+
+  Subnet1dId:
+    Value: !Ref Subnet1d
     Export:
-      Name: "miyazato-kt1-EcsSecurityGroupId"
+      Name: subnet1d-id
+
+  RT1aId:
+    Value: !Ref RT1a
+    Export:
+      Name: rt1a-id
+
+  RT1cId:
+    Value: !Ref RT1c
+    Export:
+      Name: rt1c-id
+
+  RT1dId:
+    Value: !Ref RT1d
+    Export:
+      Name: rt1d-id
+
+  ##############################################
+  # VPC1 - 2ECS
+  ##############################################
+
+  Subnet2aId:
+    Value: !Ref Subnet2a
+    Export:
+      Name: subnet2a-id
+
+  Subnet2cId:
+    Value: !Ref Subnet2c
+    Export:
+      Name: subnet2c-id
+
+  Subnet2dId:
+    Value: !Ref Subnet2d
+    Export:
+      Name: subnet2d-id
+
+  RT2aId:
+    Value: !Ref RT2a
+    Export:
+      Name: rt2a-id
+
+  RT2cId:
+    Value: !Ref RT2c
+    Export:
+      Name: rt2c-id
+
+  RT2dId:
+    Value: !Ref RT2d
+    Export:
+      Name: rt2d-id
+
+  ##############################################
+  # VPC1 - 3VPCE
+  ##############################################
+
+  Subnet3aId:
+    Value: !Ref Subnet3a
+    Export:
+      Name: subnet3a-id
+
+  Subnet3cId:
+    Value: !Ref Subnet3c
+    Export:
+      Name: subnet3c-id
+
+  Subnet3dId:
+    Value: !Ref Subnet3d
+    Export:
+      Name: subnet3d-id
+
+  RT3aId:
+    Value: !Ref RT3a
+    Export:
+      Name: rt3a-id
+
+  RT3cId:
+    Value: !Ref RT3c
+    Export:
+      Name: rt3c-id
+
+  RT3dId:
+    Value: !Ref RT3d
+    Export:
+      Name: rt3d-id
+
+  ##############################################
+  # VPC1 - 4TGW
+  ##############################################
+
+  Subnet4aId:
+    Value: !Ref Subnet4a
+    Export:
+      Name: subnet4a-id
+
+  Subnet4cId:
+    Value: !Ref Subnet4c
+    Export:
+      Name: subnet4c-id
+
+  Subnet4dId:
+    Value: !Ref Subnet4d
+    Export:
+      Name: subnet4d-id
+
+  RT4aId:
+    Value: !Ref RT4a
+    Export:
+      Name: rt4a-id
+
+  RT4cId:
+    Value: !Ref RT4c
+    Export:
+      Name: rt4c-id
+
+  RT4dId:
+    Value: !Ref RT4d
+    Export:
+      Name: rt4d-id
+
+  ##############################################
+  # VPC2 - 5EC2 (VyOS / Linux)
+  ##############################################
+
+  Subnet5aId:
+    Value: !Ref Subnet5a
+    Export:
+      Name: subnet5a-id
+
+  Subnet5cId:
+    Value: !Ref Subnet5c
+    Export:
+      Name: subnet5c-id
+
+  Subnet5dId:
+    Value: !Ref Subnet5d
+    Export:
+      Name: subnet5d-id
+
+  RT5aId:
+    Value: !Ref RT5a
+    Export:
+      Name: rt5a-id
+
+  RT5cId:
+    Value: !Ref RT5c
+    Export:
+      Name: rt5c-id
+
+  RT5dId:
+    Value: !Ref RT5d
+    Export:
+      Name: rt5d-id
+
+  ##############################################
+  # VPC2 - 6VPCE
+  ##############################################
+
+  Subnet6aId:
+    Value: !Ref Subnet6a
+    Export:
+      Name: subnet6a-id
+
+  Subnet6cId:
+    Value: !Ref Subnet6c
+    Export:
+      Name: subnet6c-id
+
+  Subnet6dId:
+    Value: !Ref Subnet6d
+    Export:
+      Name: subnet6d-id
+
+  RT6aId:
+    Value: !Ref RT6a
+    Export:
+      Name: rt6a-id
+
+  RT6cId:
+    Value: !Ref RT6c
+    Export:
+      Name: rt6c-id
+
+  RT6dId:
+    Value: !Ref RT6d
+    Export:
+      Name: rt6d-id
+
+  ##############################################
+  # VPC2 - 7TGW
+  ##############################################
+
+  Subnet7aId:
+    Value: !Ref Subnet7a
+    Export:
+      Name: subnet7a-id
+
+  Subnet7cId:
+    Value: !Ref Subnet7c
+    Export:
+      Name: subnet7c-id
+
+  Subnet7dId:
+    Value: !Ref Subnet7d
+    Export:
+      Name: subnet7d-id
+
+  RT7aId:
+    Value: !Ref RT7a
+    Export:
+      Name: rt7a-id
+
+  RT7cId:
+    Value: !Ref RT7c
+    Export:
+      Name: rt7c-id
+
+  RT7dId:
+    Value: !Ref RT7d
+    Export:
+      Name: rt7d-id
