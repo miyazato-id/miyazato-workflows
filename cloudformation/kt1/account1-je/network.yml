@@ -130,17 +130,17 @@ Resources:
       NetworkAclId: !Ref NACL1a
   
   NACL1aIngress110:
-  Type: AWS::EC2::NetworkAclEntry
-  Properties:
-    NetworkAclId: !Ref NACL1a
-    RuleNumber: 110
-    Protocol: 6
-    RuleAction: allow
-    Egress: false
-    CidrBlock: 0.0.0.0/0
-    PortRange:
-      From: 443
-      To: 443
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref NACL1a
+      RuleNumber: 110
+      Protocol: 6
+      RuleAction: allow
+      Egress: false
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: 443
+        To: 443
 
 
 
