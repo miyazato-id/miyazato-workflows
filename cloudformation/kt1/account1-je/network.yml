@@ -43,6 +43,17 @@ Resources:
     Properties:
       SubnetId: !Ref Subnet1a
       RouteTableId: !Ref RT1a
+  
+  ##############################################
+  # RT1a - Route Test (TGW)
+  ##############################################
+
+  RT1aRouteTest:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RT1a
+      DestinationCidrBlock: 10.99.0.0/16
+      TransitGatewayId: tgw-05ad55e13d6f3ab8c
 
   Subnet1c:
     Type: AWS::EC2::Subnet
