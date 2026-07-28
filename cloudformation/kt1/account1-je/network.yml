@@ -10,7 +10,7 @@ Parameters:
   Vpc2Id:
     Type: AWS::EC2::VPC::Id
     Default: vpc-014333c37be93e49b
-    Description: Existing VPC2 ID
+    Description: Existing VPC2 I
 
 
 
